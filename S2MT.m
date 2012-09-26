@@ -177,7 +177,7 @@ function [Log, PrimerSequence] = S2MT(UserInput, DesiredStd)
             % Start points for Primers:
             for i = 1:numel(Primer) % Loop over all restriction site positions (if founded)
                 [Score, Alignment, Start{i}] = swalign(sequence, Primer{i});
-                %disp(sprintf('Starting position %d', Start{i}(1)));
+                disp(sprintf('Starting position %d', Start{i}(1)));
                 PrimerSequence = seqdisp(Primer{i}, 'Column', 3);
             end
 
