@@ -5,6 +5,7 @@ function [Log, PrimerSequence] = S2MT(UserInput, DesiredStd)
     % Analyze the user input
 
     valid = 0;
+    UserInput=regexprep(UserInput,'[^\w'']','');
     if findstr(lower(UserInput),'partsregistry.org') ~= 0
         %% Get the sequence from the URL
 
