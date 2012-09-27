@@ -1,2 +1,12 @@
+The SynBio Sequence Mutation Tool (S2MT) it's a MATLAB implementation software that helps teams to start their projects once they have selected some possible BioBricks or DNA sequences to work with.
 
-Our software team has as a main goal, for both the IGEM community and the synthetic biology, the development of programs that will make things easier for new teams that are willing to do something great, but don’t know where to start. We have been thinking about the main difficulties that new teams have, for example, once a team decides which combination of parts, or DNA composition they will use, they will need a tool, easy to use, to tell them whether or not their project is compatible with the assembly standards that are accepted. And if it’s not, which site-directed mutagenesis could avoid the restriction sites and make it compatible.
+This tool was developed in MATLAB basically for the reason that, what new iGEM teams require is a flexible environment capable of not only running the algorithm that we develop, but also a place where they can continue working their ideas, examine more in detail their sequences and even continue the development of our tool. So we thing that our system will also knock down the barriers that exist between computation and biology and give students the tools required to do better simulations, and save a lot of valuable time!
+
+Behind the code there are three simple steps in which the program consists:
+-First, the user introduces the DNA sequence or link to the BioBrick in the part registry. And the program scans the desired sequence to look for the restriction sites within the assembly standards that are used in the iGEM competition.
+-Then the user is prompt to specify in case of incompatibility with the standards, which RFC he would like to fix. Once selected, the program designs the primers required for the Site directed mutagenesis procedure that will allow the sequence to be compatible with the standard.
+-And last, if the program successfully created the required primer, it will print the sequence, giving the user the start position where that primer should be applied.
+
+In some cases, it’s impossible to fix some sequences, because based on the protocol, the output primer may not comply with the steps that are listed in the “Protocol Followed to design the primers” section. Meaning that another standard should be selected.
+
+More information about the project: http://2012.igem.org/Team:UTP-Software/SoftwareTool
