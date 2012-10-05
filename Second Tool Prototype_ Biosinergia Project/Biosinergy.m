@@ -108,7 +108,7 @@ for i = 1:length(saveidx)
     route  = strcat(route, ' BBa_K', var2, ',');
 end
 
-set(handles.biobricks, 'string', biotext);
+set(handles.biobricks, 'String', biotext);
 set(handles.pathways, 'String', route);
 
 function biobricks_Callback(hObject, eventdata, handles)
