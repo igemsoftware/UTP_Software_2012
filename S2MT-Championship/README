@@ -1,0 +1,18 @@
+Program details:
+
+- Functions:
+	phdreader: This function takes as an input parameter the file name and path, extracts the sequence and the phred scores. 
+	longestword: Takes a pair of sequences previously aligned, and outputs the count of bases for its longest word (uninterrupted group of bases that are the same for both sequences). 
+	restsites: Receives a sequences and outputs the places where restriction enzymes where found, and the assembly standard compatibility. 
+	sequencer: It's the main process file, it receives the phred scores and sequences, clean the sequences based on base quality. Align the sequences, finding all the overlaps, and using a greedy algorithm it returns the best logic order for the sequences. The output is the final consensed sequence. 
+	S2MT: File developed for the jamboree, where the assembly standard search and mutagenic primer design it's done.
+	S2MT_G: Contains the information that makes possible the graphical user interface (GUI). 
+
+How to run the program:
+
+·	Download all these files.
+·	Save them in a common directory, and add that directory to the matlab path. (To avoid difficulties, you may save them to the directory called “MATLAB”, located likely in your documents folder. 
+·	Double click the S2MT_G files, and press F5 in your matlab editor to run it. 
+·	Align sequences, find overlaps, ORFs, mutagenic primers and make your sequencing experience easier. 
+
+

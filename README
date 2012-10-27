@@ -9,7 +9,8 @@ Primer Section:
 -Then the user is prompt to specify in case of incompatibility with the standards, which RFC he would like to fix. Once selected, the program designs the primers required for the Site directed mutagenesis procedure that will allow the sequence to be compatible with the standard.
 -And last, if the program successfully created the required primer, it will print the sequence, giving the user the start position where that primer should be applied.
 
-Sequencer Section:
+Sequencer Section: 
+	*More information in Championship folder README
 -Here the user selects a folder containing phd files (phred scores sequencing files) from which he wants to get a consensed final sequence. 
 -The program runs the alignment algorithm, finds overlapping regions, uses some threshold criteria to select between real overlappings, and high quality bases.
 -Then it outputs a final consensed sequence, which can be then evaluated for assembly standards compatibility and can be passed to the primer section to fix the compatibility issues. 
