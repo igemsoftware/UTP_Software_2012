@@ -2,11 +2,19 @@ The SynBio Sequence Mutation Tool (S2MT) it's a MATLAB implementation software t
 
 This tool was developed in MATLAB basically for the reason that, what new iGEM teams require is a flexible environment capable of not only running the algorithm that we develop, but also a place where they can continue working their ideas, examine more in detail their sequences and even continue the development of our tool. So we thing that our system will also knock down the barriers that exist between computation and biology and give students the tools required to do better simulations, and save a lot of valuable time!
 
-Behind the code there are three simple steps in which the program consists:
+What does the program do?
+
+Primer Section:
 -First, the user introduces the DNA sequence or link to the BioBrick in the part registry. And the program scans the desired sequence to look for the restriction sites within the assembly standards that are used in the iGEM competition.
 -Then the user is prompt to specify in case of incompatibility with the standards, which RFC he would like to fix. Once selected, the program designs the primers required for the Site directed mutagenesis procedure that will allow the sequence to be compatible with the standard.
 -And last, if the program successfully created the required primer, it will print the sequence, giving the user the start position where that primer should be applied.
 
-In some cases, it’s impossible to fix some sequences, because based on the protocol, the output primer may not comply with the steps that are listed in the “Protocol Followed to design the primers” section. Meaning that another standard should be selected.
+Sequencer Section:
+-Here the user selects a folder containing phd files (phred scores sequencing files) from which he wants to get a consensed final sequence. 
+-The program runs the alignment algorithm, finds overlapping regions, uses some threshold criteria to select between real overlappings, and high quality bases.
+-Then it outputs a final consensed sequence, which can be then evaluated for assembly standards compatibility and can be passed to the primer section to fix the compatibility issues. 
+
+Extras:
+The program gives the user the opportunity to visualize open reading frames of his sequence, all sequences with its overlapping and the possibility to search for gaps or make manual corrections.
 
 More information about the project: http://2012.igem.org/Team:UTP-Software/SoftwareTool
