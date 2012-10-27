@@ -22,7 +22,7 @@ function varargout = S2MT_G(varargin)
 
 % Edit the above text to modify the response to help S2MT_G
 
-% Last Modified by GUIDE v2.5 27-Oct-2012 02:41:19
+% Last Modified by GUIDE v2.5 27-Oct-2012 21:24:08
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -202,7 +202,8 @@ function pushbutton2_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-    [finaloutput, elapsedTime] = sequencer(get(handles.dir, 'String'), get(handles.reverse, 'String'));
+    [finaloutput, elapsedTime, errormsg] = sequencer(get(handles.dir, 'String'), get(handles.reverse, 'String'));
+    set(handles.errormsg, 'String', errormsg);
     set(handles.time, 'String', elapsedTime);
     set(handles.consensus, 'String', finaloutput);
     disp(seqdisp(finaloutput));
@@ -283,7 +284,7 @@ function browse_Callback(hObject, eventdata, handles)
     if isequal(filename,0) || isequal(pathname,0)
        disp('User pressed cancel')
     else
-       set(handles.dir,'String', strcat(pathname, '*.phd.1'))
+       set(handles.dir,'String', pathname)
     end
 
 
@@ -380,3 +381,10 @@ function togglebutton9_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of togglebutton5
+
+
+% --- Executes during object creation, after setting all properties.
+function errormsg_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to errormsg (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called

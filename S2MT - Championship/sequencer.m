@@ -1,11 +1,26 @@
-function [finaloutput, elapsedTime] = sequencer(directory, reverse)
+function [finaloutput, elapsedTime, errormsg] = sequencer(directory, reverse)
 %   This function admits only phred score files. 
 %   Directory must be in the form: 'C:\...\*.phd.1', where *.phd.1 indicates 
 %   that all phd.1 files should be selected
     tic;
+    finaloutput = '';
+    errormsg = '';
+
+if ~isdir(directory)
+    errormsg = 'Invalid directory, please change it.';
+    elapsedTime = toc;
+    return
+end
 % Reading phd.1 sequences
+addpath(directory);
+directory = strcat(directory, '*.phd.1');
 fnames = dir(directory);
 numfids = length(fnames);
+if numfids > 10
+    errormsg = 'More than 10 files, program may crash, separate them in groups please.';
+    elapsedTime = toc;
+    return;
+end
 seq = cell(numfids, 1);
 score = cell(numfids, 1);
 for K = 1:numfids
@@ -48,7 +63,7 @@ for i = 1:until
     datamax(i) = (longestword(f{i}));
 end
 x = find(datamax > 20);
-[B, IX] = sort(datamax, 'descend');
+[~, IX] = sort(datamax, 'descend');
 % steps = steps + 1; % 4
 % Always put the first sequence before the second (not viceversa)
 seqvalues = zeros(length(x), 2);
@@ -61,7 +76,11 @@ for i = 1:length(x)
 end
 % steps = steps + 1; % 5
 % Greedy algorithm
-
+if isempty(seqvalues)
+    errormsg = 'The program couldnt create any contigs, check the bases quality';
+    elapsedTime = toc;
+    return
+end
 finalchain = seqvalues;  % replicate the highest score combination values
 uniques = unique(seqvalues); % Look for the amount of different values
 while (length(finalchain)) ~= (length(uniques) - 1) 
@@ -71,12 +90,19 @@ end
 % getting the correct order
 testdiags = spdiags(finalchain(:, [2, 1]));
 order = 1:length(finalchain);
+cycle = 1;
+maxtest = 0;
 while sum(testdiags(1,2:end-1) == testdiags(2, 2:end-1)) ~= length(finalchain) - 1
     % As we are working with small quantities of sequences doing it by
     % random permutations won't take too long. If you are working with more
     % than 10 sequences to align, look for a better way. 
     order = randperm(length(finalchain));
     testdiags = spdiags(finalchain(order, [2, 1]));
+    if cycle > 200
+        errormsg = 'A single consensed sequence can not be found, in order to work, all contigs must form a big chain';
+        elapsedTime = toc;
+        return;
+    end    
 end
 % steps = steps + 1; % 6
 % Multialign
