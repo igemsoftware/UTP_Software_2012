@@ -22,7 +22,7 @@ function varargout = Biosinergy(varargin)
 
 % Edit the above text to modify the response to help Biosinergy
 
-% Last Modified by GUIDE v2.5 04-Oct-2012 15:30:31
+% Last Modified by GUIDE v2.5 05-Oct-2012 18:28:50
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -53,14 +53,14 @@ function Biosinergy_OpeningFcn(hObject, eventdata, handles, varargin)
 % varargin   command line arguments to Biosinergy (see VARARGIN)
 
 % Basic database
-handles.biobricks = [398011, 590032, 590031, 590054, 348000, 778001, 778007, 558001, 558007, 273012, 273016];
-handles.routes = {'under research', 'under research', 'under research', 'under research', 'Glycolisys', 'under research', ...
-    'under research', 'Pyruvate Decarboxylase', 'fatty acid synthesis cycle', 'glycolysis', 'under research'};
-handles.mapbbroutes = containers.Map(handles.biobricks, handles.routes);
-handles.bioenergylist = {'Alkane', 'Fatty Aldehydes', 'Alkane Biodiesel', 'Alkane', 'Hidrogen', 'Hidrogen', 'Hidrogen', 'Ethanol', 'Fatty Acids', ...
-    'Butanol', 'Ethanol'}
-handles.substrateslist = {'Alkanes', 'Sugars', 'Fatty Aldehydes', 'Sugars', 'Glucose', 'Glucose', 'Glucose', 'Glucose', 'Glucose', ...
-    'Glucose', 'Glucose'};
+% handles.biobricks = [398011, 590032, 590031, 590054, 348000, 778001, 778007, 558001, 558007, 273012, 273016];
+% handles.routes = {'under research', 'under research', 'under research', 'under research', 'Glycolisys', 'under research', ...
+%     'under research', 'Pyruvate Decarboxylase', 'fatty acid synthesis cycle', 'glycolysis', 'under research'};
+% handles.mapbbroutes = containers.Map(handles.biobricks, handles.routes);
+% handles.bioenergylist = {'Alkane', 'Fatty Aldehydes', 'Alkane Biodiesel', 'Alkane', 'Hidrogen', 'Hidrogen', 'Hidrogen', 'Ethanol', 'Fatty Acids', ...
+%     'Butanol', 'Ethanol'}
+% handles.substrateslist = {'Alkanes', 'Sugars', 'Fatty Aldehydes', 'Sugars', 'Glucose', 'Glucose', 'Glucose', 'Glucose', 'Glucose', ...
+%     'Glucose', 'Glucose'};
 
 % Choose default command line output for Biosinergy
 handles.output = hObject;
@@ -88,27 +88,14 @@ function search_Callback(hObject, eventdata, handles)
 % hObject    handle to search (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+strsubs = get(handles.substrates,'String');
+valsubs = get(handles.substrates, 'value');
+stren = get(handles.bioenergies, 'String');
+valen = get(handles.bioenergies, 'value');
 
-idx_subst = find(ismember(handles.substrateslist, get(handles.substrates,'String')) == 1);
-idx_energy = find(ismember(handles.substrateslist, get(handles.bioenergies, 'String')) == 1);
-saveidx = 0;
-for i = 1:length(idx_energy)
-    equalidx = find(idx_subst == idx_energy(i));
-    if ~isempty(equalidx)
-        saveidx = [saveidx, idx_energy(i)];
-    end
-end
-saveidx = saveidx(2:end);
-biotext = '';
-route = '';
-for i = 1:length(saveidx)
-    var1 = num2str( handles.biobricks(saveidx(i)));
-    var2 = num2str( handles.mapbbroutes(handles.biobricks(saveidx(i))));
-    biotext  = strcat(biotext, ' BBa_K', var1, ',');
-    route  = strcat(route, ' BBa_K', var2, ',');
-end
+[biotext, route] = getbiobricks(strsubs{valsubs}, stren{valen});
 
-set(handles.biobricks, 'String', biotext);
+set(handles.biobricks, 'string', biotext);
 set(handles.pathways, 'String', route);
 
 function biobricks_Callback(hObject, eventdata, handles)
@@ -199,4 +186,49 @@ function substrates_CreateFcn(hObject, eventdata, handles)
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
+end
+
+
+% --- If Enable == 'on', executes on mouse press in 5 pixel border.
+% --- Otherwise, executes on mouse press in 5 pixel border or over this.
+function this_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to this (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+function [biotext, route] = getbiobricks(subst, energy)
+% Main core of the program:
+
+biobricks = [398011, 590032, 590031, 590054, 348000, 778001, 778007, 558001, 558007, 273012, 273016];
+routes = {'under research', 'under research', 'under research', 'under research', 'Glycolisys', 'under research', ...
+    'under research', 'Pyruvate Decarboxylase', 'fatty acid synthesis cycle', 'glycolysis', 'under research'};
+mapbbroutes = containers.Map(biobricks, routes);
+bioenergylist = {'Alkane', 'Fatty Aldehydes', 'Alkane Biodiesel', 'Alkane', 'Hidrogen', 'Hidrogen', 'Hidrogen', 'Ethanol', 'Fatty Acids', ...
+    'Butanol', 'Ethanol'};
+substrateslist = {'Alkanes', 'Sugars', 'Fatty Aldehydes', 'Sugars', 'Glucose', 'Glucose', 'Glucose', 'Glucose', 'Glucose', ...
+    'Glucose', 'Glucose'};
+
+idx_subst = find(ismember(substrateslist, subst) == 1);
+idx_energy = find(ismember(bioenergylist, energy) == 1);
+saveidx = 0;
+
+for i = 1:length(idx_energy)
+    equalidx = find(idx_subst == idx_energy(i));
+    if ~isempty(equalidx)
+        saveidx = [saveidx, idx_energy(i)];
+    end
+end
+saveidx = saveidx(2:end);
+if isempty(saveidx)
+    biotext = 'No combination found';
+    route = 'No combination found';
+else
+    biotext = '';
+    route = '';
+    for i = 1:length(saveidx)
+        var1 = num2str( biobricks(saveidx(i)));
+        var2 = num2str( mapbbroutes(biobricks(saveidx(i))));
+        biotext  = strcat(biotext, ' BBa_K', var1, ',')
+        route  = strcat(route, ' ', var2, ',')
+    end
 end
