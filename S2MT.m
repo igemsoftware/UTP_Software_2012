@@ -5,7 +5,7 @@ function [Log, PrimerSequence] = S2MT(UserInput, DesiredStd)
     % Analyze the user input
 
     valid = 0;
-    UserInput=regexprep(UserInput,'[^\w'']','');
+    
     if findstr(lower(UserInput),'partsregistry.org') ~= 0
         %% Get the sequence from the URL
 
@@ -32,7 +32,7 @@ function [Log, PrimerSequence] = S2MT(UserInput, DesiredStd)
         end
     else
         %% Validate the DNA sequence from the input
-
+        UserInput=regexprep(UserInput,'[^\w'']','');
         sequence = upper(UserInput);
         for i = 1:length(sequence)
             if ((sequence(i) ~= ('A')) && (sequence(i) ~= ('C')) && (sequence(i) ~= ('G')) && (sequence(i) ~= ('T')))
@@ -45,46 +45,12 @@ function [Log, PrimerSequence] = S2MT(UserInput, DesiredStd)
     end
 
     if valid == 0
-        % Restriction Sites
 
-        EcoRI = ('GAATTC');
-        NotI = ('GCGGCCGC');
-        XbaI = ('TCTAGA');
-        SpeI = ('ACTAGT');
-        PstI = ('CTGCAG');
-        NgoMIV = ('GCCGGC');
-        AgeI = ('ACCGGT');
-        BglII = ('AGATCT');
-        BamHI = ('GGATCC');
-        XhoI = ('CTCGAG');
-        NheI = ('GCTAGC');
-        restSites = {EcoRI, NotI, XbaI, SpeI, PstI, NgoMIV, AgeI, BglII, BamHI, XhoI, NheI};
-
-        % Standards 
-        % If the standar contains a restriction site, 1, else 0. 
-        std10 = [1 1 1 1 1 0 0 0 0 0 0];
-        std25 = [1 1 1 1 1 1 1 0 0 0 0];
-        std21 = [1 0 0 0 0 0 0 1 1 1 0];
-        std23 = [1 1 1 1 1 0 0 0 0 0 0];
-        std12 = [1 0 0 1 1 0 0 0 0 0 1];
-        standards = {std10 std12 std21 std23 std25};
-        standardnames = {'10' '12' '21' '23' '25'};
-
-        % Comparing Sequence to standards
-
-        for i = 1:numel(restSites)
-            place{i} = findstr(sequence, restSites{i});
-            if size(place{i}) ~= 0
-                result(i) = 1;
-            else
-                result(i) = NaN;
-            end
-        end
-
+        [place, result, standardnames, ~, standards] = restsites(sequence); 
 
         % Specify compatibility or incomp..
         for i = 1:numel(standardnames)
-            if DesiredStd == standardnames{i}
+            if str2num(DesiredStd) == str2num(standardnames{i})
                 DesiredStdN = i;
             end
         end
@@ -120,12 +86,12 @@ function [Log, PrimerSequence] = S2MT(UserInput, DesiredStd)
             % 1. Both the mutagenic primers must contain the desired mutation and anneal to the same
             % sequence on opposite strands of the plasmid.
             % 2. Primers should be between 25 and 45 bases in length, and the melting temperature (Tm) of
-            % the primers should be greater than or equal to 78°C. The following formula is commonly
+            % the primers should be greater than or equal to 78Â°C. The following formula is commonly
             % used for estimating the Tm of primers:
             % Tm = 81.5 + 0.41(%GC) ? 675 / N ? % mismatch
             % where N is the primer length in base pairs.
             % 3. The desired mutation (deletion or insertion) should be in the middle of the primer with
-            % ~10–15 bases of correct sequence on both sides.
+            % ~10â€“15 bases of correct sequence on both sides.
             % 4. The primers optimally should have a minimum GC content of 40% and should terminate
             % in one or more C or G bases.
 
@@ -134,7 +100,7 @@ function [Log, PrimerSequence] = S2MT(UserInput, DesiredStd)
                 for j = 1:length(place{i}) % In the case a restriction site was found multiple times
                     l = 12;
                     Tm = 77;
-                    while (Tm < 78) % Tm must be higher than 78°C
+                    while (Tm < 78) % Tm must be higher than 78Â°C
                         roundingStart = place{i}(j) - rem(place{i}(j), 3) + k - 1; % To determine the middle point of Primer
                         if (roundingStart + l + 2) < length(sequence) ...
                                 && (roundingStart - l) > 0 % Not to exceed sequence size
@@ -194,14 +160,7 @@ function [Log, PrimerSequence] = S2MT(UserInput, DesiredStd)
 
             % Comparing NEWSequence to standards
 
-            for i = 1:numel(restSites)
-                place{i} = findstr(newSequence, restSites{i});
-                if size(place{i}) ~= 0
-                    result_new(i) = 1;
-                else
-                    result_new(i) = NaN;
-                end
-            end
+            [place, result_new] = restsites(newSequence);
 
             % Specify compatibility or incomp..
             
