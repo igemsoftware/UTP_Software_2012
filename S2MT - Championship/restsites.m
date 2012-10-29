@@ -31,6 +31,6 @@ function [place, result, standardnames, restSites, standards] = restsites(sequen
             if size(place{i}) ~= 0
                 result(i) = 1;
             else
-                result(i) = NaN;
+                result(i) = 2;
             end
         end

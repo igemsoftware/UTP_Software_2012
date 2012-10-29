@@ -105,11 +105,16 @@ for j = 1:5
     name = strcat('togglebutton', num2str(j));
     set(handles.(name), 'BackgroundColor', 'r');
 end
-    [Log, PrimerSequence] = S2MT(get(handles.str, 'String'), feval(@(x) x{1}{x{2}}, get(handles.std,{'String','Value'})));
+    newSequence = '';
+    [Log, PrimerSequence, newSequence] = S2MT(get(handles.str, 'String'), feval(@(x) x{1}{x{2}}, get(handles.std,{'String','Value'})));
     set(handles.Log, 'String', Log);
     set(handles.Primer, 'String', PrimerSequence);
-    [place, result, standardnames, restSites, standards] = restsites(get(handles.str, 'String'));
-    DesiredStd = [10, 12, 21, 23, 25];
+    set(handles.consensus, 'String', newSequence);
+if ~isempty(newSequence) || ~isempty(strfind(Log, 'Sequence is'))
+    if ~isempty(strfind(Log, 'Sequence is'))
+        newSequence = get(handles.str, 'String');
+    end
+    [~, result, ~, ~, standards] = restsites(newSequence);
     for j = 1:5
         name = strcat('togglebutton', num2str(j));
         if sum(standards{j} == result) < 1
@@ -118,6 +123,7 @@ end
             set(handles.(name), 'BackgroundColor', 'r');
         end
     end
+end
 % --- Executes on selection change in std.
 function std_Callback(hObject, eventdata, handles)
 % hObject    handle to std (see GCBO)

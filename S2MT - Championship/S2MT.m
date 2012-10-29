@@ -1,12 +1,18 @@
-function [Log, PrimerSequence] = S2MT(UserInput, DesiredStd)
+function [Log, PrimerSequence, newSequence] = S2MT(UserInput, DesiredStd)
+%   Test values:
+%   UserInput = 'http://partsregistry.org/Part:BBa_K743005';
+%   DesiredStd = '10';
     clc;
     PrimerSequence = '';
-    
+    newSequence = '';
+    if strfind(DesiredStd, '25')
+        DesiredStd = '25';
+    end
     % Analyze the user input
 
     valid = 0;
     
-    if findstr(lower(UserInput),'partsregistry.org') ~= 0
+    if strfind(lower(UserInput),'partsregistry.org') ~= 0
         %% Get the sequence from the URL
 
         sourcePart = urlread(UserInput);
@@ -15,7 +21,7 @@ function [Log, PrimerSequence] = S2MT(UserInput, DesiredStd)
 
         searchStart = 'var sequence = new String(';
         searchEnd = ');';
-        m = findstr(sourcePart, searchStart);
+        m = strfind(sourcePart, searchStart);
 
         % Can we get the DNA sequence with the given URL?
         if isempty(m)
@@ -23,7 +29,7 @@ function [Log, PrimerSequence] = S2MT(UserInput, DesiredStd)
             Log = 'ERROR: The URL is not valid or the part have no accesible DNA sequence';
             valid = 1;
         else
-            n = findstr(sourcePart(m:length(sourcePart)), searchEnd);
+            n = strfind(sourcePart(m:length(sourcePart)), searchEnd);
 
             % Display the Sequence
 
@@ -45,7 +51,7 @@ function [Log, PrimerSequence] = S2MT(UserInput, DesiredStd)
     end
 
     if valid == 0
-
+        % Find the restriction sites. 
         [place, result, standardnames, ~, standards] = restsites(sequence); 
 
         % Specify compatibility or incomp..
@@ -59,9 +65,9 @@ function [Log, PrimerSequence] = S2MT(UserInput, DesiredStd)
             disp(sprintf('Incompatible with RFC[%s]', DesiredStd));
             
             % Codons to aminoacids for different frames
-            for i = 1:3
-                aminoSeqFrames{i} = nt2aa(sequence, 'Frame', i);
-            end
+%             for i = 1:3
+%                 aminoSeqFrames{i} = nt2aa(sequence, 'Frame', i);
+%             end
             SeqOrfs = seqshoworfs(sequence);
             
             ProspectSum = [0 0 0];
@@ -138,45 +144,60 @@ function [Log, PrimerSequence] = S2MT(UserInput, DesiredStd)
                 end
             end
 
-            % Delete empty cells
+            % Delete empty cells and duplicates
             Primer = Primer(~cellfun('isempty', Primer));
+            Primer = unique(Primer);
+%             ~isempty(Primer)
+            if ~isempty(Primer)
+                % Start points for Primers:
+                for i = 1:numel(Primer) % Loop over all restriction site positions (if founded)
+                    [~, ~, Start{i}] = swalign(sequence, Primer{i});
+                    string(1, Start{i}(1):Start{i}(1)+length(Primer{i}) - 1) = Primer{i};
+                end
+                % View the complete sequence aligned with primers
+                string = adddashes(string, length(sequence));
+                [~, Alignment] = nwalign(sequence, string);    
+                showalignment(Alignment)
 
-            % Start points for Primers:
-            for i = 1:numel(Primer) % Loop over all restriction site positions (if founded)
-                [Score, Alignment, Start{i}] = swalign(sequence, Primer{i});
-                disp(sprintf('Starting position %d', Start{i}(1)));
-                PrimerSequence = seqdisp(Primer{i}, 'Column', 3);
-            end
+                % Add the start position values to the sequence
+                primerdisp = seqdisp(Primer);
+                for i = 1:numel(Start)
+                    PrimerSequence(2*i - 1, :) = strrep(primerdisp(2*i - 1, :), '1', num2str(Start{i}(1)));  
+                end
 
-            % Applying primer to make new sequence
-            newSequence = sequence;
-            for i = 1:numel(Primer)
-                newSequence = strcat(newSequence(1:Start{i}(1) - 1), Primer{i}, newSequence(Start{i}(1) + length(Primer{i}):end));
-            end
+                % Applying primer to make new sequence
+                newSequence = sequence;
+                for i = 1:numel(Primer)
+                    newSequence = strcat(newSequence(1:Start{i}(1) - 1), Primer{i}, newSequence(Start{i}(1) + length(Primer{i}):end));
+                end
 
-            % Show both Sequences, new and old with different color in the changed base
-            %[Score, Alignment] = nwalign(sequence, newSequence, 'ExtendGap', 2000);
-            %showalignment(Alignment)
+                % Show both Sequences, new and old with different color in the changed base
+                %[Score, Alignment] = nwalign(sequence, newSequence, 'ExtendGap', 2000);
+                %showalignment(Alignment)
 
-            % Comparing NEWSequence to standards
-
-            [place, result_new] = restsites(newSequence);
-
+                % Comparing NEWSequence to standards
+            
+                [~, result] = restsites(newSequence);
+            end    
             % Specify compatibility or incomp..
             
-            if sum(standards{DesiredStdN} == result_new) >= 1
+            if sum(standards{DesiredStdN} == result) >= 1
                 disp(sprintf('Incompatibility with RFC[%s] cannot be fixed', DesiredStd));
-                Log = strcat('Cannot fix incompatibility with standard ', DesiredStd);
+                Log = strcat('The selected standard (', DesiredStd, ') is unfixable with this method.');
                 PrimerSequence = '';
-            elseif sum(standards{DesiredStdN} == result) >= 1 && sum(standards{DesiredStdN} == result_new) == 0
+                newSequence = '';
+                
+            elseif sum(standards{DesiredStdN} == result) == 0
                 disp(sprintf('Now is compatible with RFC[%s]', DesiredStd));
                 Log = strcat('Fixed compatibility with standard ', DesiredStd);
+                
             end
 
         else
             disp(sprintf('Compatible with RFC[%s]', DesiredStd));
             Log = strcat('Sequence is compatible with standard ', DesiredStd);
             PrimerSequence = '';
+            
         end
             
     end
